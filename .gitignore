@@ -1,0 +1,38 @@
+# Competition data and generated artifacts
+data/
+models/
+checkpoints/
+submissions/
+logs/
+
+# Large ML files
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.onnx
+*.zip
+*.tar
+*.tar.gz
+*.zarr/
+
+# Credentials and local secrets
+.env
+.kaggle/
+access_token
+kaggle.json
+*.pem
+*.key
+
+# Python and notebooks
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
