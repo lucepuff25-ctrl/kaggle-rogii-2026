@@ -1,0 +1,17 @@
+{
+  "artifact_path": "models/baseline_a/algorithm.json",
+  "cv_scheme": "typewell_numeric_fingerprint_group_5fold",
+  "effective_wells": 770,
+  "fold_mapping": "data/processed/rogii_well_folds.csv",
+  "fold_mapping_sha256": "e524dfa3dd43f1a4d2105971f16a5b1b0e0135bdc4d20ea476388310146df9e1",
+  "folds": 5,
+  "method": "last_known_tvt_input",
+  "quarantine_policy_version": "public-sample-overlap-v1",
+  "report_path": "reports/baseline_a_summary.json",
+  "sample_submission": "data/raw/sample_submission.csv",
+  "seed": 20260713,
+  "submission_path": "submissions/baseline_a/submission.csv",
+  "test_dir": "data/raw/test",
+  "train_dir": "data/raw/train",
+  "typewell_groups": 749
+}
