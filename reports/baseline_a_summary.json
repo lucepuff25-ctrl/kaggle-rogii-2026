@@ -23,7 +23,7 @@
     {
       "fold": 0,
       "inf_count": 0,
-      "inference_seconds": 1.534119653995731,
+      "inference_seconds": 1.519104466002318,
       "mse": 271.5395445577022,
       "nan_count": 0,
       "prediction_rows": 753744,
@@ -33,7 +33,7 @@
     {
       "fold": 1,
       "inf_count": 0,
-      "inference_seconds": 1.4061306469957344,
+      "inference_seconds": 1.3853100340056699,
       "mse": 188.15693844522872,
       "nan_count": 0,
       "prediction_rows": 754195,
@@ -43,7 +43,7 @@
     {
       "fold": 2,
       "inf_count": 0,
-      "inference_seconds": 1.4078777640097542,
+      "inference_seconds": 1.3888724599964917,
       "mse": 248.837679035405,
       "nan_count": 0,
       "prediction_rows": 753766,
@@ -53,7 +53,7 @@
     {
       "fold": 3,
       "inf_count": 0,
-      "inference_seconds": 1.3953263880102895,
+      "inference_seconds": 1.3831134359934367,
       "mse": 278.1934269529421,
       "nan_count": 0,
       "prediction_rows": 753376,
@@ -63,7 +63,7 @@
     {
       "fold": 4,
       "inf_count": 0,
-      "inference_seconds": 1.4020141809887718,
+      "inference_seconds": 1.3929953100014245,
       "mse": 281.1553735985231,
       "nan_count": 0,
       "prediction_rows": 754757,
@@ -71,19 +71,27 @@
       "wells": 153
     }
   ],
-  "git_commit": "292ff9de0798851c1b3ee5a21435a786083c10c2",
+  "git_commit": "b5ba32748a06c3d885944595046935f215e91c8f",
   "gpu": "none",
   "inf_count": 0,
-  "cv_inference_seconds": 7.145468634000281,
-  "inference_seconds": 7.23580492399924,
+  "cv_inference_seconds": 7.069395705999341,
+  "external_artifact_smoke": {
+    "artifact_path": "/tmp/rogii-baseline-a-external/algorithm.json",
+    "artifact_sha256": "0ec9e0479f2e5b39a334b25f1f81e890ad0654c57a27f5a1288fd73460bfdad1",
+    "status": "ok",
+    "submission_path": "/tmp/rogii-baseline-a-external/submission.csv",
+    "submission_sha256": "6a1389e5fce45f4a8f79eb256fd89fe080dc618168cd88e8e73aeb50bc6a8c86"
+  },
+  "inference_seconds": 7.158475357995485,
   "method": "last_known_tvt_input",
   "nan_count": 0,
   "oof_prediction_rows": 3769838,
   "parameters": {
     "strategy": "extend_final_known_tvt_input"
   },
+  "path_reporting_contract": "repo-relative-external-absolute-posix",
   "quarantine_policy_version": "public-sample-overlap-v1",
-  "run_id": "baseline_a_20260713T125758Z",
+  "run_id": "baseline_a_20260713T130902Z",
   "seed": 20260713,
   "smoke_wells_per_fold": 0,
   "status": "ok",
@@ -92,7 +100,8 @@
   "submission_sha256": "6a1389e5fce45f4a8f79eb256fd89fe080dc618168cd88e8e73aeb50bc6a8c86",
   "submission_unique_ids": 14151,
   "submission_validation_status": "ok",
-  "test_inference_seconds": 0.09033628999895882,
+  "supersedes_run_id": "baseline_a_20260713T125758Z",
+  "test_inference_seconds": 0.0890796519961441,
   "test_wells": 3,
   "train_seconds": 0.0,
   "trained_model": false,
