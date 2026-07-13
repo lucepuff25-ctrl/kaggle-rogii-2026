@@ -1,0 +1,149 @@
+{
+  "artifact_manifest_path": "models/baseline_b/bounded_fold0/manifest.json",
+  "artifact_manifest_sha256": "867a0367507ffe77abde52a16c64fc03544ad0353dd264d59da08e803f0c1013",
+  "artifact_model_path": "models/baseline_b/bounded_fold0/model.txt",
+  "artifact_model_sha256": "b68e6c354a3ca46b6fc5cad9669d514d6a39432236f28e75f057cb9f2b8d8bbe",
+  "artifact_reload_predictions_equal": true,
+  "artifact_training_well_ids_sha256": "02750ac06149f304597c106ea6ea0623e69b2e5dd8b69062a48975a8af771c82",
+  "baseline_a": {
+    "inf_count": 0,
+    "inference_seconds": 0.004153624031459913,
+    "mse": 246.2768137009976,
+    "nan_count": 0,
+    "prediction_rows": 61667,
+    "rmse": 15.693209158773026
+  },
+  "baseline_b": {
+    "inf_count": 0,
+    "inference_seconds": 0.028232373006176203,
+    "mse": 294.08447737193956,
+    "mse_delta_vs_baseline_a": 47.80766367094196,
+    "mse_relative_change_percent": 19.412165908961615,
+    "nan_count": 0,
+    "prediction_rows": 61667,
+    "rmse": 17.148891432741056,
+    "rmse_delta_vs_baseline_a": 1.45568227396803
+  },
+  "boundary_audit": {
+    "quarantined_training_wells": 0,
+    "quarantined_validation_wells": 0,
+    "training_validation_group_overlap": 0,
+    "training_validation_well_overlap": 0
+  },
+  "comparison": {
+    "ordered_row_ids_sha256": "0ec5215d1f81c4f55efea3b2036e0257726673f67c8de1515be999a1fb35951c",
+    "prediction_rows": 61667,
+    "same_validation_rows": true
+  },
+  "cv_scheme": "typewell_numeric_fingerprint_group_5fold",
+  "data_hash": "ca28bec29d25452b335c4a5a8b0a104897898dd1b28148df9bb1d620136266a8",
+  "data_prepare_seconds": 0.7003316800110042,
+  "excluded_fields": [
+    "TVT",
+    "ANCC",
+    "ASTNU",
+    "ASTNL",
+    "EGFDU",
+    "EGFDL",
+    "BUDA",
+    "Geology",
+    "well_id",
+    "typewell_group",
+    "fold"
+  ],
+  "feature_columns": [
+    "anchor_tvt_input",
+    "row_offset",
+    "prediction_fraction",
+    "md_delta_anchor",
+    "x_delta_anchor",
+    "y_delta_anchor",
+    "z_delta_anchor",
+    "gr",
+    "gr_delta_anchor",
+    "gr_missing",
+    "anchor_gr_missing"
+  ],
+  "fold_mapping_sha256": "e524dfa3dd43f1a4d2105971f16a5b1b0e0135bdc4d20ea476388310146df9e1",
+  "folds_configured": 5,
+  "folds_run": 1,
+  "full_cv_run": false,
+  "git_commit": "293b8c235e1053d93156c4c6865c1459cfd92512",
+  "gpu": "none",
+  "inference_seconds": 0.028232373006176203,
+  "kaggle_submitted": false,
+  "lightgbm_version": "4.6.0",
+  "method": "lightgbm_anchor_residual",
+  "num_boost_round": 64,
+  "parameters": {
+    "bagging_fraction": 1.0,
+    "bagging_freq": 0,
+    "deterministic": true,
+    "device_type": "cpu",
+    "feature_fraction": 1.0,
+    "force_col_wise": true,
+    "learning_rate": 0.05,
+    "metric": "l2",
+    "min_data_in_leaf": 100,
+    "num_leaves": 31,
+    "num_threads": 4,
+    "objective": "regression",
+    "seed": 20260713,
+    "verbosity": -1
+  },
+  "peak_rss_estimate_mib": 271.265625,
+  "profile": "bounded_fold0",
+  "quarantine_policy_version": "public-sample-overlap-v1",
+  "run_id": "baseline_b_bounded_fold0_20260713T134526Z",
+  "seed": 20260713,
+  "selection_rule": "seeded_sha256_group_order_round_robin_by_fold",
+  "status": "smoke_ok",
+  "target_definition": "TVT_minus_last_known_TVT_input",
+  "timestamp": "2026-07-13T13:45:26.739936+00:00",
+  "train_limits": {
+    "max_groups": 32,
+    "max_prediction_rows": 180000,
+    "max_wells": 48
+  },
+  "train_seconds": 0.4214857869956177,
+  "trained_model": true,
+  "training": {
+    "folds": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "group_ids_sha256": "57e363da59fd44d376713d4a0cf01c9ca23f44973fc8c5656844ae9e6bd93ce0",
+    "groups": 32,
+    "prediction_rows": 165755,
+    "well_ids_sha256": "02750ac06149f304597c106ea6ea0623e69b2e5dd8b69062a48975a8af771c82",
+    "wells": 35
+  },
+  "training_prepare_seconds": 0.5144009860086953,
+  "used_source_fields": [
+    "MD",
+    "X",
+    "Y",
+    "Z",
+    "GR",
+    "TVT_input"
+  ],
+  "validation": {
+    "folds": [
+      0
+    ],
+    "group_ids_sha256": "a5800a162dec0226414aee948d970849afffa1d9b5438a9a3f01d2c5cbbc9648",
+    "groups": 12,
+    "prediction_rows": 61667,
+    "well_ids_sha256": "4ef2a177c5be7f112ffcac627f9f90b293d6b4097420697296a7d755f635e77c",
+    "wells": 13
+  },
+  "validation_fold": 0,
+  "validation_limits": {
+    "max_groups": 12,
+    "max_prediction_rows": 80000,
+    "max_wells": 18
+  },
+  "validation_prepare_seconds": 0.18593069400230888
+}
