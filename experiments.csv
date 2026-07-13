@@ -1,0 +1,2 @@
+run_id,competition,timestamp,git_commit,data_hash,cv_scheme,folds,seed,model,parameters,cv_score,lb_score,train_seconds,inference_seconds,gpu,artifact_path,artifact_sha256,status,conclusion
+TEMPLATE,rogii-wellbore-geology-prediction,,,,group_by_well,5,20260713,NOT_RUN,,,,,,none,,,template,Populate only after a real reproducible run; no experiment was executed for this foundation task.
