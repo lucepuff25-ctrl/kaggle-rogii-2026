@@ -59,3 +59,31 @@ def test_series_and_composite_groups_are_supported() -> None:
     composite = assign_group_folds(frame, ["well", "region"], n_splits=2)
     assert composite.iloc[0] == composite.iloc[1]
     assert composite.iloc[2] == composite.iloc[3]
+
+
+def test_sample_weight_balances_group_weight_deterministically() -> None:
+    frame = pd.DataFrame({"source": ["a", "b", "c", "d"], "rows": [100, 60, 40, 1]})
+    folds = assign_group_folds(
+        frame,
+        "source",
+        n_splits=2,
+        seed=11,
+        sample_weight=frame["rows"].to_numpy(),
+    )
+    repeated = assign_group_folds(
+        frame,
+        "source",
+        n_splits=2,
+        seed=11,
+        sample_weight=frame["rows"].to_numpy(),
+    )
+    pd.testing.assert_series_equal(folds, repeated)
+    totals = frame.assign(fold=folds).groupby("fold")["rows"].sum().to_dict()
+    assert sorted(totals.values()) == [100, 101]
+
+
+@pytest.mark.parametrize("weights", [[1.0, -1.0, 2.0, 3.0], [0.0, 0.0, 0.0, 0.0]])
+def test_invalid_sample_weights_raise(weights) -> None:
+    frame = pd.DataFrame({"source": ["a", "b", "c", "d"]})
+    with pytest.raises(ValueError, match="sample_weight"):
+        assign_group_folds(frame, "source", n_splits=2, sample_weight=weights)

@@ -41,13 +41,22 @@
 
 训练有 3,783,989 个预测区行（`TVT_input` 为空）；已知区 1,308,266 行的 `TVT_input` 全部等于 `TVT`。测试预测区共 14,151 行。
 
+## MSE/RMSE官方来源冲突
+
+- Kaggle官方API竞赛元数据返回`evaluationMetric = Mean Squared Error`。
+- Kaggle官方Evaluation页面和随附PPTX第14页均写Root Mean Squared Error（RMSE）。
+- `MSE = (1/n) × Σ(y_i - ŷ_i)²`。
+- `RMSE = sqrt(MSE)`。
+- 两者对同一组预测通常产生单调一致的排名，但记录的分数数值和量纲不同。
+- 在组织方统一说明前，本地代码同时提供MSE和RMSE，后续实验必须同时记录`cv_mse`和`cv_rmse`，不得把任一名称写成唯一已确认指标。
+
 ## 缺失、异常与重复
 
 - 训练水平井：`GR` 缺失 1,507,972；`TVT_input` 缺失 3,783,989；`ANCC` 缺失 45,634；`EGFDL` 缺失 6,067。
 - 测试水平井：`GR` 缺失 3,784；`TVT_input` 缺失 14,151。
 - 训练 typewell：`Geology` 缺失 523,474；`TVT/GR` 无缺失。
 - 全部 CSV 文件内未发现完全重复行，也未发现无穷值。
-- 752 个唯一 typewell 数值轮廓中，13 组被多个井完全复用，共涉及 34 个井，最大一组 10 个井。这是同源近重复和 CV 泄漏风险。
+- 数值float64规范化后仍有752个唯一typewell轮廓；13组被多个井完全复用，共涉及34个井，最大一组10个井。这是同源近重复和CV泄漏风险。
 
 ## 训练/测试差异与直接重叠
 
@@ -74,7 +83,7 @@
 ## 尚未确认
 
 - 数据无官方“区域”字段；`X/Y` 是坐标，但没有官方区域边界或空间块尺度，不能把任意网格解释为区域。
-- Kaggle 官方 API 当前返回 `evaluationMetric = Mean Squared Error`；官方随附 PPTX 第 14 页文字写 RMSE，二者冲突。本项目按竞赛 API 实现 MSE，并保留该冲突为组织方待确认事项。
+- Kaggle官方API写MSE，而官方Evaluation页面和随附PPTX写RMSE；该冲突仍待组织方统一说明。
 - 未定义数值容差意义下的“近重复”；本次已检查完全重复行、完全相同 typewell 轮廓及训练/测试逐行重叠。
 
 官方来源：[Overview](https://www.kaggle.com/competitions/rogii-wellbore-geology-prediction/overview)、[Data](https://www.kaggle.com/competitions/rogii-wellbore-geology-prediction/data)、官方 API 竞赛元数据和下载数据。

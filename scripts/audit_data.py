@@ -7,14 +7,20 @@ import argparse
 import csv
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-import hashlib
 from itertools import zip_longest
 import json
 import math
 from pathlib import Path
 import random
 import re
+import sys
 from typing import Iterable
+
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from rogii.typewell import typewell_numeric_fingerprint
 
 
 HORIZONTAL_SUFFIX = "__horizontal_well.csv"
@@ -153,18 +159,6 @@ def profile_csv_files(paths: Iterable[Path], target_column: str | None = None) -
         if target_column
         else None,
     }
-
-
-def typewell_fingerprint(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("r", newline="", encoding="utf-8-sig") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            digest.update(row["TVT"].strip().encode())
-            digest.update(b"\0")
-            digest.update(row["GR"].strip().encode())
-            digest.update(b"\n")
-    return digest.hexdigest()
 
 
 def horizontal_input_audit(paths: Iterable[Path]) -> tuple[dict, dict[str, int]]:
@@ -319,7 +313,7 @@ def main() -> int:
     test_input, test_rows = horizontal_input_audit(test_horizontal)
     typewell_groups: dict[str, list[str]] = defaultdict(list)
     for path in train_typewell:
-        typewell_groups[typewell_fingerprint(path)].append(well_id(path))
+        typewell_groups[typewell_numeric_fingerprint(path)].append(well_id(path))
     repeated_groups = [wells for wells in typewell_groups.values() if len(wells) > 1]
 
     result = {

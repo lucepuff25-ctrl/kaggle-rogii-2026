@@ -14,6 +14,7 @@ PUBLIC_SAMPLE_OVERLAP_WELLS = frozenset(
         "00e12e8b",
     }
 )
+QUARANTINE_POLICY_VERSION = "public-sample-overlap-v1"
 
 
 def _well_ids(frame: pd.DataFrame, well_col: str) -> pd.Series:
@@ -49,7 +50,11 @@ def assert_no_public_sample_overlap(
     context: str = "training or validation",
 ) -> None:
     """Fail closed if quarantined wells enter an honest experiment."""
-    normalized = {str(value).lower() for value in well_ids}
+    normalized = set()
+    for value in well_ids:
+        if pd.isna(value):
+            raise ValueError("well IDs contain missing values")
+        normalized.add(str(value).lower())
     overlap = sorted(normalized & PUBLIC_SAMPLE_OVERLAP_WELLS)
     if overlap:
         joined = ", ".join(overlap)

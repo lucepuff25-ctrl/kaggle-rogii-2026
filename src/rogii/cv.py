@@ -52,6 +52,7 @@ def assign_group_folds(
     *,
     n_splits: int = 5,
     seed: int = DEFAULT_SEED,
+    sample_weight: pd.Series | np.ndarray | Sequence[float] | None = None,
 ) -> pd.Series:
     """Assign every row to one validation fold without splitting a group.
 
@@ -65,17 +66,33 @@ def assign_group_folds(
     groups = _group_series(frame, group_col)
     if groups.empty:
         raise ValueError("cannot split an empty dataset")
-    counts = groups.value_counts(sort=False, dropna=False)
-    if len(counts) < n_splits:
-        raise ValueError(f"n_splits={n_splits} exceeds the {len(counts)} unique groups")
+    if sample_weight is None:
+        weights = pd.Series(np.ones(len(groups), dtype=np.float64), index=groups.index)
+    else:
+        weight_values = np.asarray(sample_weight, dtype=np.float64)
+        if weight_values.ndim != 1 or len(weight_values) != len(groups):
+            raise ValueError("sample_weight must have the same length as frame")
+        weights = pd.Series(weight_values, index=groups.index)
+        if not np.isfinite(weights.to_numpy()).all() or (weights < 0).any():
+            raise ValueError("sample_weight must contain finite non-negative values")
+        if float(weights.sum()) <= 0:
+            raise ValueError("sample_weight must have a positive total")
+    group_weights = pd.DataFrame({"group": groups, "weight": weights}).groupby(
+        "group", sort=False, dropna=False
+    )["weight"].sum()
+    if len(group_weights) < n_splits:
+        raise ValueError(f"n_splits={n_splits} exceeds the {len(group_weights)} unique groups")
 
-    ordered_groups = sorted(counts.index, key=lambda value: (-int(counts[value]), _tie_break(value, seed)))
-    fold_sizes = [0] * n_splits
+    ordered_groups = sorted(
+        group_weights.index,
+        key=lambda value: (-float(group_weights[value]), _tie_break(value, seed)),
+    )
+    fold_sizes = [0.0] * n_splits
     group_to_fold: dict[object, int] = {}
     for value in ordered_groups:
         fold = min(range(n_splits), key=lambda candidate: (fold_sizes[candidate], candidate))
         group_to_fold[value] = fold
-        fold_sizes[fold] += int(counts[value])
+        fold_sizes[fold] += float(group_weights[value])
 
     folds = groups.map(group_to_fold).astype(np.int64)
     folds.name = "fold"

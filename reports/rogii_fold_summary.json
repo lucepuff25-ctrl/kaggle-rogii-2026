@@ -1,0 +1,83 @@
+{
+  "effective_wells": 770,
+  "fingerprint_algorithm": "sha256-tvt-gr-float64be-v1",
+  "fold_count": 5,
+  "fold_mapping_sha256": "e524dfa3dd43f1a4d2105971f16a5b1b0e0135bdc4d20ea476388310146df9e1",
+  "folds": [
+    {
+      "fold": 0,
+      "prediction_rows": 753744,
+      "tvt": {
+        "count": 753744,
+        "max": 12859.44,
+        "mean": 11577.77244106752,
+        "min": 10294.81,
+        "std": 607.0397985065816
+      },
+      "typewell_groups": 146,
+      "wells": 156
+    },
+    {
+      "fold": 1,
+      "prediction_rows": 754195,
+      "tvt": {
+        "count": 754195,
+        "max": 12846.06,
+        "mean": 11532.265344135143,
+        "min": 10039.02,
+        "std": 675.2595780494999
+      },
+      "typewell_groups": 151,
+      "wells": 153
+    },
+    {
+      "fold": 2,
+      "prediction_rows": 753766,
+      "tvt": {
+        "count": 753766,
+        "max": 12841.61,
+        "mean": 11496.63060380808,
+        "min": 10060.240000000002,
+        "std": 575.94196466695
+      },
+      "typewell_groups": 151,
+      "wells": 155
+    },
+    {
+      "fold": 3,
+      "prediction_rows": 753376,
+      "tvt": {
+        "count": 753376,
+        "max": 12893.89,
+        "mean": 11596.640988510391,
+        "min": 10062.7,
+        "std": 663.5648171409676
+      },
+      "typewell_groups": 150,
+      "wells": 153
+    },
+    {
+      "fold": 4,
+      "prediction_rows": 754757,
+      "tvt": {
+        "count": 754757,
+        "max": 12825.070000000002,
+        "mean": 11518.309854019244,
+        "min": 10626.79,
+        "std": 601.0648313350077
+      },
+      "typewell_groups": 151,
+      "wells": 153
+    }
+  ],
+  "group_cross_fold": false,
+  "manifest_path": "data/manifest.json",
+  "manifest_sha256": "ca28bec29d25452b335c4a5a8b0a104897898dd1b28148df9bb1d620136266a8",
+  "original_train_wells": 773,
+  "quarantine_in_fold": false,
+  "quarantine_policy_version": "public-sample-overlap-v1",
+  "quarantined_wells": 3,
+  "seed": 20260713,
+  "total_prediction_rows": 3769838,
+  "typewell_groups": 749
+}

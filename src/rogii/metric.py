@@ -1,4 +1,4 @@
-"""Official ROGII competition metric."""
+"""Candidate metrics needed while ROGII's official sources disagree."""
 
 from __future__ import annotations
 
@@ -35,3 +35,8 @@ def mean_squared_error(y_true: Any, y_pred: Any) -> float:
     if not np.isfinite(score):
         raise ValueError("MSE is not finite for the supplied values")
     return float(score)
+
+
+def root_mean_squared_error(y_true: Any, y_pred: Any) -> float:
+    """Return positional RMSE, the square root of MSE."""
+    return float(np.sqrt(mean_squared_error(y_true, y_pred)))

@@ -15,9 +15,10 @@ copies also contain `TVT` for all 14,151 public-test prediction rows.
 ## Interpretation
 
 This is recorded as a **public sample overlap**, not as confirmed leaderboard
-label leakage. ROGII is notebook-only, so Kaggle may replace the public sample
-with hidden wells during scoring. The public overlap must not be used as evidence
-that hidden labels are available.
+label leakage. Kaggle's official Data Description states that the few visible
+examples will be replaced by about 200 actual hidden test wells during the
+Notebook rerun. The public overlap must not be used as evidence that hidden
+labels are available.
 
 ## Policy
 
