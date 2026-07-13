@@ -19,7 +19,7 @@ from .quarantine import QUARANTINE_POLICY_VERSION, assert_no_public_sample_overl
 BASELINE_B_METHOD = "lightgbm_anchor_residual"
 BASELINE_B_TARGET = "TVT_minus_last_known_TVT_input"
 BASELINE_B_ARTIFACT_TYPE = "rogii_baseline_b_lightgbm"
-BASELINE_B_ARTIFACT_SCHEMA_VERSION = 1
+BASELINE_B_ARTIFACT_SCHEMA_VERSION = 2
 BASELINE_B_PARAMETER_KEYS = frozenset(
     {
         "objective",
@@ -49,6 +49,7 @@ _MANIFEST_KEYS = frozenset(
         "num_boost_round",
         "fold_mapping_sha256",
         "quarantine_policy_version",
+        "training_scope",
         "validation_fold",
         "training_wells",
         "training_groups",
@@ -331,7 +332,7 @@ def _validate_manifest(
     *,
     expected_fold_mapping_sha256: str,
     expected_parameters: dict[str, Any],
-    expected_validation_fold: int,
+    expected_validation_fold: int | None,
 ) -> None:
     if not isinstance(manifest, dict) or set(manifest) != _MANIFEST_KEYS:
         raise ValueError("Baseline B manifest keys mismatch")
@@ -351,6 +352,11 @@ def _validate_manifest(
         raise ValueError("Baseline B fold SHA256 mismatch")
     if manifest["quarantine_policy_version"] != QUARANTINE_POLICY_VERSION:
         raise ValueError("Baseline B quarantine policy mismatch")
+    expected_scope = (
+        "all_effective_wells" if expected_validation_fold is None else "cv_fold"
+    )
+    if manifest["training_scope"] != expected_scope:
+        raise ValueError("Baseline B training scope mismatch")
     if manifest["validation_fold"] != expected_validation_fold:
         raise ValueError("Baseline B validation fold mismatch")
     if not isinstance(manifest["num_boost_round"], int) or manifest[
@@ -381,7 +387,7 @@ def save_baseline_b_artifact(
     parameters: dict[str, Any],
     num_boost_round: int,
     fold_mapping_sha256: str,
-    validation_fold: int,
+    validation_fold: int | None,
     training_mapping: pd.DataFrame,
     training_rows: int,
 ) -> tuple[Path, Path]:
@@ -407,6 +413,9 @@ def save_baseline_b_artifact(
         "num_boost_round": num_boost_round,
         "fold_mapping_sha256": fold_mapping_sha256,
         "quarantine_policy_version": QUARANTINE_POLICY_VERSION,
+        "training_scope": (
+            "all_effective_wells" if validation_fold is None else "cv_fold"
+        ),
         "validation_fold": validation_fold,
         "training_wells": int(len(training_mapping)),
         "training_groups": int(training_mapping["typewell_group"].nunique()),
@@ -437,7 +446,7 @@ def load_baseline_b_artifact(
     *,
     expected_fold_mapping_sha256: str,
     expected_parameters: dict[str, Any],
-    expected_validation_fold: int,
+    expected_validation_fold: int | None,
 ) -> tuple[lgb.Booster, dict[str, Any]]:
     source = Path(artifact_dir)
     model_path = source / "model.txt"
