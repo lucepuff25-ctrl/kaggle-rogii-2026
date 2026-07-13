@@ -27,6 +27,7 @@ from rogii.baseline import (
 )
 from rogii.io import (
     INFERENCE_COLUMNS,
+    display_path,
     load_fold_mapping,
     prediction_mask,
     read_horizontal_well,
@@ -201,7 +202,7 @@ def main() -> int:
         "quarantine_policy_version": QUARANTINE_POLICY_VERSION,
         "gpu": "none",
         "trained_model": False,
-        "artifact_path": artifact_path.resolve().relative_to(ROOT.resolve()).as_posix(),
+        "artifact_path": display_path(artifact_path, relative_to=ROOT),
         "artifact_sha256": sha256_file(artifact_path),
         "artifact_reload_verified": True,
         "artifact_roundtrip_predictions_equal": roundtrip_equal,

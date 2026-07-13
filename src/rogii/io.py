@@ -31,6 +31,16 @@ def sha256_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
+def display_path(path: str | Path, *, relative_to: str | Path) -> str:
+    """Display repo-local paths relatively and external paths absolutely."""
+    resolved = Path(path).resolve()
+    root = Path(relative_to).resolve()
+    try:
+        return resolved.relative_to(root).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
 def discover_horizontal_wells(directory: str | Path) -> list[WellFile]:
     """Discover wells dynamically and return them in stable filename order."""
     root = Path(directory)

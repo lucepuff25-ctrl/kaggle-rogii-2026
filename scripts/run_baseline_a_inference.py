@@ -19,6 +19,7 @@ from rogii.baseline import BASELINE_A_METHOD, load_baseline_a_algorithm
 from rogii.io import (
     INFERENCE_COLUMNS,
     discover_horizontal_wells,
+    display_path,
     read_horizontal_well,
     sha256_file,
 )
@@ -80,7 +81,7 @@ def main() -> int:
         "inf_count": int(np.isinf(submission["tvt"].to_numpy(dtype=np.float64)).sum()),
         "gpu": "none",
         "trained_model": False,
-        "artifact_path": artifact_path.resolve().relative_to(ROOT.resolve()).as_posix(),
+        "artifact_path": display_path(artifact_path, relative_to=ROOT),
         "artifact_sha256": sha256_file(artifact_path),
         "artifact_validated": True,
         "validation": validation,

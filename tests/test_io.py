@@ -7,6 +7,7 @@ import pytest
 from rogii.io import (
     FOLD_COLUMNS,
     INFERENCE_COLUMNS,
+    display_path,
     discover_horizontal_wells,
     load_fold_mapping,
     prediction_ids,
@@ -67,6 +68,14 @@ def test_discovery_is_dynamic_and_sorted(tmp_path: Path) -> None:
         )
     wells = discover_horizontal_wells(tmp_path)
     assert [well.well_id for well in wells] == ["abc00001", "future99"]
+
+
+def test_display_path_keeps_external_artifact_absolute(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    inside = root / "models" / "algorithm.json"
+    outside = tmp_path / "external" / "algorithm.json"
+    assert display_path(inside, relative_to=root) == "models/algorithm.json"
+    assert display_path(outside, relative_to=root) == outside.resolve().as_posix()
 
 
 def _write_mapping(path: Path, well_ids: list[str] | None = None) -> None:
