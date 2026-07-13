@@ -56,8 +56,10 @@ def assign_group_folds(
 ) -> pd.Series:
     """Assign every row to one validation fold without splitting a group.
 
-    Groups are ordered by descending row count with a seeded stable hash as the
-    tie-breaker, then greedily assigned to the currently smallest fold.
+    Groups are ordered by descending aggregated sample weight, using unit row
+    weights when ``sample_weight`` is omitted, with a seeded stable hash as the
+    tie-breaker. Each group is then assigned to the fold with the smallest
+    current total weight.
     """
     if isinstance(n_splits, bool) or not isinstance(n_splits, int) or n_splits < 2:
         raise ValueError("n_splits must be an integer of at least 2")
