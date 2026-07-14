@@ -126,26 +126,38 @@ def build_typewell_prior_features(
     return features.loc[:, list(TYPEWELL_PRIOR_FEATURE_COLUMNS)]
 
 
-def build_last_known_slope_features(frame: pd.DataFrame) -> pd.DataFrame:
-    """Add the final known-prefix dTVT/dMD as one constant per-well feature."""
+def build_last_known_slope_features(
+    frame: pd.DataFrame, *, known_window: int = 2
+) -> pd.DataFrame:
+    """Add a known-prefix OLS dTVT/dMD as one constant per-well feature."""
+    if (
+        not isinstance(known_window, int)
+        or isinstance(known_window, bool)
+        or known_window < 2
+    ):
+        raise ValueError("known_window must be an integer of at least two")
     features = build_baseline_b_features(frame)
     mask = prediction_mask(frame)
     first_prediction = int(np.flatnonzero(mask.to_numpy())[0])
-    if first_prediction < 2:
-        raise ValueError("last_known_dTVT_dMD requires two known TVT_input rows")
+    if first_prediction < known_window:
+        raise ValueError(
+            f"last_known_dTVT_dMD requires {known_window} known TVT_input rows"
+        )
     tvt = pd.to_numeric(
-        frame.iloc[first_prediction - 2 : first_prediction]["TVT_input"],
+        frame.iloc[first_prediction - known_window : first_prediction]["TVT_input"],
         errors="raise",
     ).to_numpy(dtype=np.float64)
     md = pd.to_numeric(
-        frame.iloc[first_prediction - 2 : first_prediction]["MD"], errors="raise"
+        frame.iloc[first_prediction - known_window : first_prediction]["MD"],
+        errors="raise",
     ).to_numpy(dtype=np.float64)
     if not np.isfinite(tvt).all() or not np.isfinite(md).all():
         raise ValueError("last_known_dTVT_dMD inputs must be finite")
-    md_delta = float(md[1] - md[0])
-    if md_delta == 0.0:
-        raise ValueError("last_known_dTVT_dMD requires nonzero MD difference")
-    slope = float((tvt[1] - tvt[0]) / md_delta)
+    md_centered = md - float(md.mean())
+    denominator = float(np.dot(md_centered, md_centered))
+    if denominator == 0.0:
+        raise ValueError("last_known_dTVT_dMD requires nonzero MD variance")
+    slope = float(np.dot(md_centered, tvt - float(tvt.mean())) / denominator)
     if not np.isfinite(slope):
         raise ValueError("last_known_dTVT_dMD must be finite")
     features["last_known_dTVT_dMD"] = np.full(

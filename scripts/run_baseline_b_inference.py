@@ -116,6 +116,13 @@ def main() -> int:
     use_typewell = config.get("use_typewell_tvt_prior", False)
     if not isinstance(use_slope, bool) or not isinstance(use_typewell, bool):
         raise ValueError("single-variable feature flags must be boolean")
+    slope_window = config.get("last_known_slope_window", 2)
+    if (
+        not isinstance(slope_window, int)
+        or isinstance(slope_window, bool)
+        or slope_window < 2
+    ):
+        raise ValueError("last_known_slope_window must be an integer of at least two")
     if use_slope and use_typewell:
         raise ValueError("single-variable features are mutually exclusive")
     feature_columns = (
@@ -159,6 +166,7 @@ def main() -> int:
         context="Baseline B final training load",
         use_typewell_tvt_prior=use_typewell,
         use_last_known_slope=use_slope,
+        last_known_slope_window=slope_window,
     )
     prepare_seconds = time.perf_counter() - prepare_started
     if len(training.features) != int(config["expected_prediction_rows"]):
@@ -215,7 +223,9 @@ def main() -> int:
         horizontal = read_horizontal_well(well.path, include_target=False)
         inference_frame = horizontal.loc[:, list(INFERENCE_COLUMNS)]
         if use_slope:
-            features = build_last_known_slope_features(inference_frame)
+            features = build_last_known_slope_features(
+                inference_frame, known_window=slope_window
+            )
         elif use_typewell:
             typewell_path = Path(config["test_dir"]) / f"{well.well_id}__typewell.csv"
             features = build_typewell_prior_features(
@@ -262,6 +272,7 @@ def main() -> int:
         "excluded_fields": list(EXCLUDED_FIELDS),
         "parameters": config["parameters"],
         "num_boost_round": config["num_boost_round"],
+        "last_known_slope_window": slope_window,
         "lightgbm_version": lgb.__version__,
         "seed": int(config["seed"]),
         "cv_scheme": config["cv_scheme"],

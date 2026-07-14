@@ -119,6 +119,13 @@ def _validate_config(config: dict) -> None:
         raise ValueError("use_typewell_tvt_prior must be boolean")
     if not isinstance(config.get("use_last_known_slope", False), bool):
         raise ValueError("use_last_known_slope must be boolean")
+    slope_window = config.get("last_known_slope_window", 2)
+    if (
+        not isinstance(slope_window, int)
+        or isinstance(slope_window, bool)
+        or slope_window < 2
+    ):
+        raise ValueError("last_known_slope_window must be an integer of at least two")
     if config.get("use_typewell_tvt_prior", False) and config.get(
         "use_last_known_slope", False
     ):
@@ -254,6 +261,7 @@ def _run_fold(config: dict, fold: int, output_prefix: Path) -> dict:
         context=f"Baseline B fold {fold} training load",
         use_typewell_tvt_prior=config.get("use_typewell_tvt_prior", False),
         use_last_known_slope=config.get("use_last_known_slope", False),
+        last_known_slope_window=config.get("last_known_slope_window", 2),
     )
     training_prepare_seconds = time.perf_counter() - training_prepare_started
     training_summary = mapping_summary(training_mapping)
@@ -286,6 +294,7 @@ def _run_fold(config: dict, fold: int, output_prefix: Path) -> dict:
         context=f"Baseline B fold {fold} validation load",
         use_typewell_tvt_prior=config.get("use_typewell_tvt_prior", False),
         use_last_known_slope=config.get("use_last_known_slope", False),
+        last_known_slope_window=config.get("last_known_slope_window", 2),
     )
     validation_prepare_seconds = time.perf_counter() - validation_prepare_started
     validation_summary = mapping_summary(validation_mapping)
@@ -499,6 +508,7 @@ def _run_parent(config: dict, config_path: Path) -> dict:
         "excluded_fields": list(EXCLUDED_FIELDS),
         "parameters": config["parameters"],
         "num_boost_round": config["num_boost_round"],
+        "last_known_slope_window": config.get("last_known_slope_window", 2),
         "lightgbm_version": lgb.__version__,
         "cv_scheme": config["cv_scheme"],
         "folds": int(config["folds"]),

@@ -123,6 +123,7 @@ def load_mapping_rows(
     context: str,
     use_typewell_tvt_prior: bool = False,
     use_last_known_slope: bool = False,
+    last_known_slope_window: int = 2,
 ) -> LoadedRows:
     """Load complete wells after quarantine checks and build inference-only features."""
     assert_no_public_sample_overlap(mapping["well_id"], context=context)
@@ -151,7 +152,9 @@ def load_mapping_rows(
             typewell = pd.read_csv(typewell_source, usecols=["TVT"])
             features = build_typewell_prior_features(inference_frame, typewell)
         elif use_last_known_slope:
-            features = build_last_known_slope_features(inference_frame)
+            features = build_last_known_slope_features(
+                inference_frame, known_window=last_known_slope_window
+            )
         else:
             features = build_baseline_b_features(inference_frame)
         truth = frame.loc[mask, "TVT"].to_numpy(dtype=np.float64)
