@@ -12,7 +12,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from .features import BASELINE_B_FEATURE_COLUMNS
+from .features import BASELINE_B_FEATURE_COLUMNS, TYPEWELL_PRIOR_FEATURE_COLUMNS
 from .io import FOLD_COLUMNS, sha256_file
 from .quarantine import QUARANTINE_POLICY_VERSION, assert_no_public_sample_overlap
 
@@ -124,7 +124,10 @@ def validate_baseline_b_parameters(parameters: dict[str, Any]) -> dict[str, Any]
 def _validate_features(features: pd.DataFrame) -> None:
     if not isinstance(features, pd.DataFrame):
         raise TypeError("features must be a pandas DataFrame")
-    if tuple(features.columns) != BASELINE_B_FEATURE_COLUMNS:
+    if tuple(features.columns) not in (
+        BASELINE_B_FEATURE_COLUMNS,
+        TYPEWELL_PRIOR_FEATURE_COLUMNS,
+    ):
         raise ValueError("Baseline B feature columns or order mismatch")
     if features.empty:
         raise ValueError("Baseline B features must not be empty")
@@ -132,7 +135,7 @@ def _validate_features(features: pd.DataFrame) -> None:
     if np.isinf(values).any():
         raise ValueError("Baseline B features contain infinite values")
     nullable = {"gr", "gr_delta_anchor"}
-    for column in set(BASELINE_B_FEATURE_COLUMNS) - nullable:
+    for column in set(features.columns) - nullable:
         if features[column].isna().any():
             raise ValueError(f"Baseline B feature {column} contains NaN")
 
@@ -189,7 +192,7 @@ def train_baseline_b(
     dataset = lgb.Dataset(
         features,
         label=target,
-        feature_name=list(BASELINE_B_FEATURE_COLUMNS),
+        feature_name=list(features.columns),
         free_raw_data=True,
     )
     return lgb.train(
@@ -202,7 +205,7 @@ def train_baseline_b(
 
 def predict_baseline_b(booster: lgb.Booster, features: pd.DataFrame) -> np.ndarray:
     _validate_features(features)
-    if booster.feature_name() != list(BASELINE_B_FEATURE_COLUMNS):
+    if booster.feature_name() != list(features.columns):
         raise ValueError("Baseline B booster feature names mismatch")
     residuals = booster.predict(
         features,

@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from .baseline import predict_baseline_a
-from .features import build_baseline_b_features
+from .features import build_baseline_b_features, build_typewell_prior_features
 from .io import (
     INFERENCE_COLUMNS,
     prediction_ids,
@@ -117,6 +117,7 @@ def load_mapping_rows(
     limits: ResourceLimits,
     stage_started: float,
     context: str,
+    use_typewell_tvt_prior: bool = False,
 ) -> LoadedRows:
     """Load complete wells after quarantine checks and build inference-only features."""
     assert_no_public_sample_overlap(mapping["well_id"], context=context)
@@ -138,7 +139,12 @@ def load_mapping_rows(
                 f"mapping={row.prediction_rows}"
             )
         inference_frame = frame.loc[:, list(INFERENCE_COLUMNS)]
-        features = build_baseline_b_features(inference_frame)
+        if use_typewell_tvt_prior:
+            typewell_source = root / f"{row.well_id}__typewell.csv"
+            typewell = pd.read_csv(typewell_source, usecols=["TVT"])
+            features = build_typewell_prior_features(inference_frame, typewell)
+        else:
+            features = build_baseline_b_features(inference_frame)
         truth = frame.loc[mask, "TVT"].to_numpy(dtype=np.float64)
         if len(features) != len(truth):
             raise ValueError(f"feature/target row mismatch for {row.well_id}")

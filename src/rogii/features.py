@@ -20,6 +20,9 @@ BASELINE_B_FEATURE_COLUMNS = (
     "gr_missing",
     "anchor_gr_missing",
 )
+TYPEWELL_PRIOR_FEATURE_COLUMNS = BASELINE_B_FEATURE_COLUMNS + (
+    "typewell_tvt_prior",
+)
 
 
 def build_baseline_b_features(frame: pd.DataFrame) -> pd.DataFrame:
@@ -89,3 +92,32 @@ def build_baseline_b_features(frame: pd.DataFrame) -> pd.DataFrame:
         if features[column].isna().any():
             raise ValueError(f"Baseline B feature {column} contains NaN")
     return features
+
+
+def build_typewell_prior_features(
+    frame: pd.DataFrame, typewell: pd.DataFrame
+) -> pd.DataFrame:
+    """Add one deterministic typewell-TVT prior without observing target TVT."""
+    features = build_baseline_b_features(frame)
+    if not isinstance(typewell, pd.DataFrame) or tuple(typewell.columns) != ("TVT",):
+        raise ValueError("typewell input must contain exactly the TVT column")
+    values = pd.to_numeric(typewell["TVT"], errors="raise").to_numpy(
+        dtype=np.float64
+    )
+    if len(values) < 2 or not np.isfinite(values).all():
+        raise ValueError("typewell TVT must contain at least two finite rows")
+
+    mask = prediction_mask(frame)
+    first_prediction = int(np.flatnonzero(mask.to_numpy())[0])
+    if len(frame) < 2:
+        raise ValueError("horizontal well must contain at least two rows")
+    horizontal_q = np.arange(len(frame), dtype=np.float64) / float(len(frame) - 1)
+    typewell_q = np.arange(len(values), dtype=np.float64) / float(len(values) - 1)
+    anchor_q = horizontal_q[first_prediction - 1]
+    prior = float(frame.iloc[first_prediction - 1]["TVT_input"]) + np.interp(
+        horizontal_q[first_prediction:], typewell_q, values
+    ) - np.interp(anchor_q, typewell_q, values)
+    if not np.isfinite(prior).all():
+        raise ValueError("typewell_tvt_prior contains non-finite values")
+    features["typewell_tvt_prior"] = prior
+    return features.loc[:, list(TYPEWELL_PRIOR_FEATURE_COLUMNS)]
