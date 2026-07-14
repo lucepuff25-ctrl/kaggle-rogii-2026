@@ -40,6 +40,7 @@ from rogii.baseline_b_runtime import (
 from rogii.features import (
     BASELINE_B_FEATURE_COLUMNS,
     LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+    TYPEWELL_GR_SLOPE_FEATURE_COLUMNS,
     TYPEWELL_PRIOR_FEATURE_COLUMNS,
 )
 from rogii.io import INFERENCE_COLUMNS, load_fold_mapping
@@ -119,6 +120,8 @@ def _validate_config(config: dict) -> None:
         raise ValueError("use_typewell_tvt_prior must be boolean")
     if not isinstance(config.get("use_last_known_slope", False), bool):
         raise ValueError("use_last_known_slope must be boolean")
+    if not isinstance(config.get("use_typewell_gr_slope", False), bool):
+        raise ValueError("use_typewell_gr_slope must be boolean")
     slope_window = config.get("last_known_slope_window", 2)
     if (
         not isinstance(slope_window, int)
@@ -126,9 +129,15 @@ def _validate_config(config: dict) -> None:
         or slope_window < 2
     ):
         raise ValueError("last_known_slope_window must be an integer of at least two")
-    if config.get("use_typewell_tvt_prior", False) and config.get(
-        "use_last_known_slope", False
-    ):
+    enabled = sum(
+        bool(config.get(key, False))
+        for key in (
+            "use_typewell_tvt_prior",
+            "use_typewell_gr_slope",
+            "use_last_known_slope",
+        )
+    )
+    if enabled > 1:
         raise ValueError("single-variable features are mutually exclusive")
     _limits(config)
 
@@ -260,6 +269,7 @@ def _run_fold(config: dict, fold: int, output_prefix: Path) -> dict:
         stage_started=fold_started,
         context=f"Baseline B fold {fold} training load",
         use_typewell_tvt_prior=config.get("use_typewell_tvt_prior", False),
+        use_typewell_gr_slope=config.get("use_typewell_gr_slope", False),
         use_last_known_slope=config.get("use_last_known_slope", False),
         last_known_slope_window=config.get("last_known_slope_window", 2),
     )
@@ -293,6 +303,7 @@ def _run_fold(config: dict, fold: int, output_prefix: Path) -> dict:
         stage_started=fold_started,
         context=f"Baseline B fold {fold} validation load",
         use_typewell_tvt_prior=config.get("use_typewell_tvt_prior", False),
+        use_typewell_gr_slope=config.get("use_typewell_gr_slope", False),
         use_last_known_slope=config.get("use_last_known_slope", False),
         last_known_slope_window=config.get("last_known_slope_window", 2),
     )
@@ -495,14 +506,23 @@ def _run_parent(config: dict, config_path: Path) -> dict:
         "method": BASELINE_B_METHOD,
         "target_definition": BASELINE_B_TARGET,
         "used_source_fields": list(INFERENCE_COLUMNS)
-        + (["typewell.TVT"] if config.get("use_typewell_tvt_prior", False) else []),
+        + (["typewell.TVT"] if config.get("use_typewell_tvt_prior", False) else [])
+        + (
+            ["typewell.TVT", "typewell.GR"]
+            if config.get("use_typewell_gr_slope", False)
+            else []
+        ),
         "feature_columns": list(
             LAST_KNOWN_SLOPE_FEATURE_COLUMNS
             if config.get("use_last_known_slope", False)
             else (
                 TYPEWELL_PRIOR_FEATURE_COLUMNS
                 if config.get("use_typewell_tvt_prior", False)
-                else BASELINE_B_FEATURE_COLUMNS
+                else (
+                    TYPEWELL_GR_SLOPE_FEATURE_COLUMNS
+                    if config.get("use_typewell_gr_slope", False)
+                    else BASELINE_B_FEATURE_COLUMNS
+                )
             )
         ),
         "excluded_fields": list(EXCLUDED_FIELDS),

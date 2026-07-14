@@ -16,6 +16,7 @@ from .baseline import predict_baseline_a
 from .features import (
     build_baseline_b_features,
     build_last_known_slope_features,
+    build_typewell_gr_slope_features,
     build_typewell_prior_features,
 )
 from .io import (
@@ -122,6 +123,7 @@ def load_mapping_rows(
     stage_started: float,
     context: str,
     use_typewell_tvt_prior: bool = False,
+    use_typewell_gr_slope: bool = False,
     use_last_known_slope: bool = False,
     last_known_slope_window: int = 2,
 ) -> LoadedRows:
@@ -145,12 +147,19 @@ def load_mapping_rows(
                 f"mapping={row.prediction_rows}"
             )
         inference_frame = frame.loc[:, list(INFERENCE_COLUMNS)]
-        if use_typewell_tvt_prior and use_last_known_slope:
-            raise ValueError("typewell prior and last-known slope are mutually exclusive")
+        enabled = sum(
+            (use_typewell_tvt_prior, use_typewell_gr_slope, use_last_known_slope)
+        )
+        if enabled > 1:
+            raise ValueError("single-variable features are mutually exclusive")
         if use_typewell_tvt_prior:
             typewell_source = root / f"{row.well_id}__typewell.csv"
             typewell = pd.read_csv(typewell_source, usecols=["TVT"])
             features = build_typewell_prior_features(inference_frame, typewell)
+        elif use_typewell_gr_slope:
+            typewell_source = root / f"{row.well_id}__typewell.csv"
+            typewell = pd.read_csv(typewell_source, usecols=["TVT", "GR"])
+            features = build_typewell_gr_slope_features(inference_frame, typewell)
         elif use_last_known_slope:
             features = build_last_known_slope_features(
                 inference_frame, known_window=last_known_slope_window

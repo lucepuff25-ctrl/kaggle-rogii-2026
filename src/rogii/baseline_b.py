@@ -15,6 +15,7 @@ import pandas as pd
 from .features import (
     BASELINE_B_FEATURE_COLUMNS,
     LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+    TYPEWELL_GR_SLOPE_FEATURE_COLUMNS,
     TYPEWELL_PRIOR_FEATURE_COLUMNS,
 )
 from .io import FOLD_COLUMNS, sha256_file
@@ -131,6 +132,7 @@ def _validate_features(features: pd.DataFrame) -> None:
     if tuple(features.columns) not in (
         BASELINE_B_FEATURE_COLUMNS,
         LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+        TYPEWELL_GR_SLOPE_FEATURE_COLUMNS,
         TYPEWELL_PRIOR_FEATURE_COLUMNS,
     ):
         raise ValueError("Baseline B feature columns or order mismatch")
@@ -411,6 +413,7 @@ def save_baseline_b_artifact(
     if feature_columns not in (
         BASELINE_B_FEATURE_COLUMNS,
         LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+        TYPEWELL_GR_SLOPE_FEATURE_COLUMNS,
         TYPEWELL_PRIOR_FEATURE_COLUMNS,
     ):
         raise ValueError("Baseline B artifact feature columns mismatch")

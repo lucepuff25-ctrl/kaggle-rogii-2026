@@ -23,6 +23,9 @@ BASELINE_B_FEATURE_COLUMNS = (
 TYPEWELL_PRIOR_FEATURE_COLUMNS = BASELINE_B_FEATURE_COLUMNS + (
     "typewell_tvt_prior",
 )
+TYPEWELL_GR_SLOPE_FEATURE_COLUMNS = BASELINE_B_FEATURE_COLUMNS + (
+    "typewell_gr_slope_100m",
+)
 LAST_KNOWN_SLOPE_FEATURE_COLUMNS = BASELINE_B_FEATURE_COLUMNS + (
     "last_known_dTVT_dMD",
 )
@@ -124,6 +127,37 @@ def build_typewell_prior_features(
         raise ValueError("typewell_tvt_prior contains non-finite values")
     features["typewell_tvt_prior"] = prior
     return features.loc[:, list(TYPEWELL_PRIOR_FEATURE_COLUMNS)]
+
+
+def build_typewell_gr_slope_features(
+    frame: pd.DataFrame, typewell: pd.DataFrame
+) -> pd.DataFrame:
+    """Add the local typewell dGR/dTVT at the known horizontal-well anchor."""
+    features = build_baseline_b_features(frame)
+    if not isinstance(typewell, pd.DataFrame) or tuple(typewell.columns) != (
+        "TVT",
+        "GR",
+    ):
+        raise ValueError("typewell input must contain exactly TVT and GR")
+    tvt = pd.to_numeric(typewell["TVT"], errors="raise").to_numpy(dtype=np.float64)
+    gr = pd.to_numeric(typewell["GR"], errors="raise").to_numpy(dtype=np.float64)
+    mask = prediction_mask(frame)
+    first_prediction = int(np.flatnonzero(mask.to_numpy())[0])
+    anchor_tvt = float(frame.iloc[first_prediction - 1]["TVT_input"])
+    centered = tvt - anchor_tvt
+    local = np.isfinite(centered) & np.isfinite(gr) & (np.abs(centered) <= 100.0)
+    if int(local.sum()) < 3:
+        raise ValueError("typewell GR slope requires three finite local rows")
+    x = centered[local]
+    design = np.column_stack((np.ones(len(x)), x, x * x))
+    coefficients, _, rank, _ = np.linalg.lstsq(design, gr[local], rcond=None)
+    if rank != 3 or not np.isfinite(coefficients).all():
+        raise ValueError("typewell GR slope quadratic fit must be finite and full rank")
+    slope = float(coefficients[1])
+    features["typewell_gr_slope_100m"] = np.full(
+        len(features), slope, dtype=np.float64
+    )
+    return features.loc[:, list(TYPEWELL_GR_SLOPE_FEATURE_COLUMNS)]
 
 
 def build_last_known_slope_features(

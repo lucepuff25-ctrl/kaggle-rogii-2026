@@ -40,9 +40,11 @@ from rogii.baseline_b_runtime import (
 from rogii.features import (
     BASELINE_B_FEATURE_COLUMNS,
     LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+    TYPEWELL_GR_SLOPE_FEATURE_COLUMNS,
     TYPEWELL_PRIOR_FEATURE_COLUMNS,
     build_baseline_b_features,
     build_last_known_slope_features,
+    build_typewell_gr_slope_features,
     build_typewell_prior_features,
 )
 from rogii.io import (
@@ -114,7 +116,11 @@ def main() -> int:
     )
     use_slope = config.get("use_last_known_slope", False)
     use_typewell = config.get("use_typewell_tvt_prior", False)
-    if not isinstance(use_slope, bool) or not isinstance(use_typewell, bool):
+    use_typewell_gr_slope = config.get("use_typewell_gr_slope", False)
+    if not all(
+        isinstance(value, bool)
+        for value in (use_slope, use_typewell, use_typewell_gr_slope)
+    ):
         raise ValueError("single-variable feature flags must be boolean")
     slope_window = config.get("last_known_slope_window", 2)
     if (
@@ -123,12 +129,20 @@ def main() -> int:
         or slope_window < 2
     ):
         raise ValueError("last_known_slope_window must be an integer of at least two")
-    if use_slope and use_typewell:
+    if sum((use_slope, use_typewell, use_typewell_gr_slope)) > 1:
         raise ValueError("single-variable features are mutually exclusive")
     feature_columns = (
         LAST_KNOWN_SLOPE_FEATURE_COLUMNS
         if use_slope
-        else (TYPEWELL_PRIOR_FEATURE_COLUMNS if use_typewell else BASELINE_B_FEATURE_COLUMNS)
+        else (
+            TYPEWELL_PRIOR_FEATURE_COLUMNS
+            if use_typewell
+            else (
+                TYPEWELL_GR_SLOPE_FEATURE_COLUMNS
+                if use_typewell_gr_slope
+                else BASELINE_B_FEATURE_COLUMNS
+            )
+        )
     )
     limits = _limits(config)
     mapping = load_fold_mapping(
@@ -165,6 +179,7 @@ def main() -> int:
         stage_started=full_started,
         context="Baseline B final training load",
         use_typewell_tvt_prior=use_typewell,
+        use_typewell_gr_slope=use_typewell_gr_slope,
         use_last_known_slope=use_slope,
         last_known_slope_window=slope_window,
     )
@@ -231,6 +246,12 @@ def main() -> int:
             features = build_typewell_prior_features(
                 inference_frame, pd.read_csv(_path(typewell_path), usecols=["TVT"])
             )
+        elif use_typewell_gr_slope:
+            typewell_path = Path(config["test_dir"]) / f"{well.well_id}__typewell.csv"
+            features = build_typewell_gr_slope_features(
+                inference_frame,
+                pd.read_csv(_path(typewell_path), usecols=["TVT", "GR"]),
+            )
         else:
             features = build_baseline_b_features(inference_frame)
         started = time.perf_counter()
@@ -267,7 +288,9 @@ def main() -> int:
         "data_hash": config["data_hash"],
         "method": BASELINE_B_METHOD,
         "target_definition": BASELINE_B_TARGET,
-        "used_source_fields": list(INFERENCE_COLUMNS),
+        "used_source_fields": list(INFERENCE_COLUMNS)
+        + (["typewell.TVT"] if use_typewell else [])
+        + (["typewell.TVT", "typewell.GR"] if use_typewell_gr_slope else []),
         "feature_columns": list(feature_columns),
         "excluded_fields": list(EXCLUDED_FIELDS),
         "parameters": config["parameters"],
