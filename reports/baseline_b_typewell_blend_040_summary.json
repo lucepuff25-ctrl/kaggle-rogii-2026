@@ -1,0 +1,90 @@
+{
+  "conclusion": "Accepted: fixed 60/40 Baseline B/typewell blend improved Public MSE from 13.623 to 13.531.",
+  "data_hash": "ca28bec29d25452b335c4a5a8b0a104897898dd1b28148df9bb1d620136266a8",
+  "decision": "promoted_public_lb",
+  "fold_mapping_sha256": "e524dfa3dd43f1a4d2105971f16a5b1b0e0135bdc4d20ea476388310146df9e1",
+  "git_commit": "7e98e85d31eb8bd5be0f0b8dc33bfb84e0ffc0b9",
+  "gpu": "none",
+  "kaggle": {
+    "absolute_improvement": 0.092,
+    "gpu": false,
+    "internet": false,
+    "kernel": "dongxinming/rogii-baseline-typewell-blend",
+    "kernel_status": "COMPLETE",
+    "kernel_version": 1,
+    "output_sha256": "3f4432e7ac9e7c1c05967342ec8ef9e72a55bb1c46275544c0ef818e4c59d67c",
+    "previous_best_public_score": 13.623,
+    "private": true,
+    "private_score": null,
+    "public_score": 13.531,
+    "relative_improvement_percent": 0.6753284885854713,
+    "submission_ref": 54687914,
+    "submission_status": "COMPLETE"
+  },
+  "method": "fixed_linear_prediction_blend",
+  "official_evaluation_metric": "Mean Squared Error",
+  "oof": {
+    "fold_mse": [
+      236.4962142016582,
+      164.70888049752176,
+      223.6219852634729,
+      233.57980050889446,
+      236.79054030343178
+    ],
+    "folds_improved_vs_baseline_b": 5,
+    "inf_count": 0,
+    "mse": 219.0363465500618,
+    "nan_count": 0,
+    "prediction_rows": 3769838,
+    "rmse": 14.799876572122546
+  },
+  "quarantine_policy_version": "public-sample-overlap-v1",
+  "run_id": "baseline_b_typewell_blend_040_20260714T135210Z",
+  "source_models": {
+    "baseline_b": {
+      "cv_work_commit": "9a01a92b554e6a63167e389cff503c1edc239b15",
+      "model_path": "models/baseline_b/final/model.txt",
+      "model_sha256": "d2fcafcb7ffe934640069bce088d6723c3f10f3fc57fbf80776c5a64f3cc3a4f"
+    },
+    "typewell_gr_slope_100m": {
+      "cv_work_commit": "14ebed3485013a4c2405c07d5fa176437f21a4f8",
+      "model_path": "models/baseline_b_typewell_gr_slope_100m/final/model.txt",
+      "model_sha256": "e24f438f49581d205585574ca273160a347e448c81cc9fa80e106a640d4b08e4"
+    }
+  },
+  "status": "ok",
+  "submission": {
+    "inf_count": 0,
+    "nan_count": 0,
+    "path": "submissions/baseline_b_typewell_blend_040/submission.csv",
+    "rows": 14151,
+    "sha256": "3f4432e7ac9e7c1c05967342ec8ef9e72a55bb1c46275544c0ef818e4c59d67c",
+    "unique_ids": 14151
+  },
+  "test_shift_vs_baseline_b": {
+    "max_absolute_row_shift": 6.388694492509949,
+    "well_mean": {
+      "000d7d20": -0.3004364050900475,
+      "00bbac68": 1.6916683086566857,
+      "00e12e8b": 4.219618920615131
+    }
+  },
+  "timestamp": "2026-07-14T13:52:10.844385+00:00",
+  "trained_model": false,
+  "weight_selection": {
+    "crossfit_optimum_weights": [
+      0.6252150912756664,
+      0.6380503302040104,
+      0.6530999002538471,
+      0.6189698286087172,
+      0.6569906256559609
+    ],
+    "deployed_typewell_weight": 0.4,
+    "oof_analytic_optimum_typewell_weight": 0.6384429453332597,
+    "reason": "shrink the test-well systematic shift while retaining five-fold OOF improvement"
+  },
+  "weights": {
+    "baseline_b": 0.6,
+    "typewell_gr_slope_100m": 0.4
+  }
+}
