@@ -37,7 +37,14 @@ from rogii.baseline_b_runtime import (
     mapping_summary,
     peak_rss_mib,
 )
-from rogii.features import BASELINE_B_FEATURE_COLUMNS, build_baseline_b_features
+from rogii.features import (
+    BASELINE_B_FEATURE_COLUMNS,
+    LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+    TYPEWELL_PRIOR_FEATURE_COLUMNS,
+    build_baseline_b_features,
+    build_last_known_slope_features,
+    build_typewell_prior_features,
+)
 from rogii.io import (
     INFERENCE_COLUMNS,
     discover_horizontal_wells,
@@ -105,6 +112,17 @@ def main() -> int:
         num_boost_round=config["num_boost_round"],
         seed=config["seed"],
     )
+    use_slope = config.get("use_last_known_slope", False)
+    use_typewell = config.get("use_typewell_tvt_prior", False)
+    if not isinstance(use_slope, bool) or not isinstance(use_typewell, bool):
+        raise ValueError("single-variable feature flags must be boolean")
+    if use_slope and use_typewell:
+        raise ValueError("single-variable features are mutually exclusive")
+    feature_columns = (
+        LAST_KNOWN_SLOPE_FEATURE_COLUMNS
+        if use_slope
+        else (TYPEWELL_PRIOR_FEATURE_COLUMNS if use_typewell else BASELINE_B_FEATURE_COLUMNS)
+    )
     limits = _limits(config)
     mapping = load_fold_mapping(
         _path(config["fold_mapping"]),
@@ -139,6 +157,8 @@ def main() -> int:
         limits=limits,
         stage_started=full_started,
         context="Baseline B final training load",
+        use_typewell_tvt_prior=use_typewell,
+        use_last_known_slope=use_slope,
     )
     prepare_seconds = time.perf_counter() - prepare_started
     if len(training.features) != int(config["expected_prediction_rows"]):
@@ -173,6 +193,7 @@ def main() -> int:
         expected_fold_mapping_sha256=config["fold_mapping_sha256"],
         expected_parameters=config["parameters"],
         expected_validation_fold=None,
+        expected_feature_columns=feature_columns,
     )
     if manifest["training_scope"] != "all_effective_wells":
         raise ValueError("final artifact training scope mismatch")
@@ -193,7 +214,15 @@ def main() -> int:
     for well in test_wells:
         horizontal = read_horizontal_well(well.path, include_target=False)
         inference_frame = horizontal.loc[:, list(INFERENCE_COLUMNS)]
-        features = build_baseline_b_features(inference_frame)
+        if use_slope:
+            features = build_last_known_slope_features(inference_frame)
+        elif use_typewell:
+            typewell_path = Path(config["test_dir"]) / f"{well.well_id}__typewell.csv"
+            features = build_typewell_prior_features(
+                inference_frame, pd.read_csv(_path(typewell_path), usecols=["TVT"])
+            )
+        else:
+            features = build_baseline_b_features(inference_frame)
         started = time.perf_counter()
         predictions = predict_baseline_b(reloaded, features)
         model_inference_seconds += time.perf_counter() - started
@@ -229,7 +258,7 @@ def main() -> int:
         "method": BASELINE_B_METHOD,
         "target_definition": BASELINE_B_TARGET,
         "used_source_fields": list(INFERENCE_COLUMNS),
-        "feature_columns": list(BASELINE_B_FEATURE_COLUMNS),
+        "feature_columns": list(feature_columns),
         "excluded_fields": list(EXCLUDED_FIELDS),
         "parameters": config["parameters"],
         "num_boost_round": config["num_boost_round"],

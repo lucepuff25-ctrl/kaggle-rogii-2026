@@ -341,6 +341,7 @@ def _validate_manifest(
     expected_fold_mapping_sha256: str,
     expected_parameters: dict[str, Any],
     expected_validation_fold: int | None,
+    expected_feature_columns: tuple[str, ...] = BASELINE_B_FEATURE_COLUMNS,
 ) -> None:
     if not isinstance(manifest, dict) or set(manifest) != _MANIFEST_KEYS:
         raise ValueError("Baseline B manifest keys mismatch")
@@ -352,7 +353,7 @@ def _validate_manifest(
         raise ValueError("Baseline B method mismatch")
     if manifest["target_definition"] != BASELINE_B_TARGET:
         raise ValueError("Baseline B target definition mismatch")
-    if tuple(manifest["feature_columns"]) != BASELINE_B_FEATURE_COLUMNS:
+    if tuple(manifest["feature_columns"]) != expected_feature_columns:
         raise ValueError("Baseline B manifest feature columns mismatch")
     if manifest["parameters"] != validate_baseline_b_parameters(expected_parameters):
         raise ValueError("Baseline B manifest parameters mismatch")
@@ -406,6 +407,13 @@ def save_baseline_b_artifact(
     )
     if booster.current_iteration() != num_boost_round:
         raise ValueError("Baseline B booster iteration count mismatch")
+    feature_columns = tuple(booster.feature_name())
+    if feature_columns not in (
+        BASELINE_B_FEATURE_COLUMNS,
+        LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+        TYPEWELL_PRIOR_FEATURE_COLUMNS,
+    ):
+        raise ValueError("Baseline B artifact feature columns mismatch")
     destination = Path(artifact_dir)
     destination.mkdir(parents=True, exist_ok=True)
     model_path = destination / "model.txt"
@@ -416,7 +424,7 @@ def save_baseline_b_artifact(
         "schema_version": BASELINE_B_ARTIFACT_SCHEMA_VERSION,
         "method": BASELINE_B_METHOD,
         "target_definition": BASELINE_B_TARGET,
-        "feature_columns": list(BASELINE_B_FEATURE_COLUMNS),
+        "feature_columns": list(feature_columns),
         "parameters": validated_parameters,
         "num_boost_round": num_boost_round,
         "fold_mapping_sha256": fold_mapping_sha256,
@@ -442,6 +450,7 @@ def save_baseline_b_artifact(
         expected_fold_mapping_sha256=fold_mapping_sha256,
         expected_parameters=validated_parameters,
         expected_validation_fold=validation_fold,
+        expected_feature_columns=feature_columns,
     )
     manifest_path.write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -455,6 +464,7 @@ def load_baseline_b_artifact(
     expected_fold_mapping_sha256: str,
     expected_parameters: dict[str, Any],
     expected_validation_fold: int | None,
+    expected_feature_columns: tuple[str, ...] = BASELINE_B_FEATURE_COLUMNS,
 ) -> tuple[lgb.Booster, dict[str, Any]]:
     source = Path(artifact_dir)
     model_path = source / "model.txt"
@@ -465,11 +475,12 @@ def load_baseline_b_artifact(
         expected_fold_mapping_sha256=expected_fold_mapping_sha256,
         expected_parameters=expected_parameters,
         expected_validation_fold=expected_validation_fold,
+        expected_feature_columns=expected_feature_columns,
     )
     if sha256_file(model_path) != manifest["model_sha256"]:
         raise ValueError("Baseline B model SHA256 mismatch")
     booster = lgb.Booster(model_file=str(model_path))
-    if booster.feature_name() != list(BASELINE_B_FEATURE_COLUMNS):
+    if booster.feature_name() != list(expected_feature_columns):
         raise ValueError("Baseline B saved feature names mismatch")
     if booster.current_iteration() != manifest["num_boost_round"]:
         raise ValueError("Baseline B saved iteration count mismatch")
