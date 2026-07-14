@@ -144,8 +144,10 @@ def build_typewell_gr_slope_features(
     mask = prediction_mask(frame)
     first_prediction = int(np.flatnonzero(mask.to_numpy())[0])
     anchor_tvt = float(frame.iloc[first_prediction - 1]["TVT_input"])
+    if not np.isfinite(tvt).all() or not np.isfinite(gr).all():
+        raise ValueError("typewell TVT and GR must be finite")
     centered = tvt - anchor_tvt
-    local = np.isfinite(centered) & np.isfinite(gr) & (np.abs(centered) <= 100.0)
+    local = np.abs(centered) <= 100.0
     if int(local.sum()) < 3:
         raise ValueError("typewell GR slope requires three finite local rows")
     x = centered[local]

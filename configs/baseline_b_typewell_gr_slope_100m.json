@@ -1,5 +1,5 @@
 {
-  "artifact_dir": "models/baseline_b/final",
+  "artifact_dir": "models/baseline_b_typewell_gr_slope_100m/final",
   "cv_report_path": "reports/baseline_b_typewell_gr_slope_100m_cv_summary.json",
   "cv_scheme": "typewell_numeric_fingerprint_group_5fold",
   "data_hash": "ca28bec29d25452b335c4a5a8b0a104897898dd1b28148df9bb1d620136266a8",
@@ -8,7 +8,7 @@
   "fold_mapping": "data/processed/rogii_well_folds.csv",
   "fold_mapping_sha256": "e524dfa3dd43f1a4d2105971f16a5b1b0e0135bdc4d20ea476388310146df9e1",
   "folds": 5,
-  "inference_report_path": "reports/baseline_b_inference_summary.json",
+  "inference_report_path": "reports/baseline_b_typewell_gr_slope_100m_inference_summary.json",
   "method": "lightgbm_anchor_residual",
   "num_boost_round": 64,
   "parameters": {
@@ -37,10 +37,11 @@
   },
   "sample_submission": "data/raw/sample_submission.csv",
   "seed": 20260713,
-  "submission_path": "submissions/baseline_b/submission.csv",
+  "submission_path": "submissions/baseline_b_typewell_gr_slope_100m/submission.csv",
   "test_dir": "data/raw/test",
   "train_dir": "data/raw/train",
   "typewell_groups": 749,
+  "use_last_known_slope": false,
   "use_typewell_gr_slope": true,
   "use_typewell_tvt_prior": false
 }
