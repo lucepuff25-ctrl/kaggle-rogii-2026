@@ -13,7 +13,11 @@ import numpy as np
 import pandas as pd
 
 from .baseline import predict_baseline_a
-from .features import build_baseline_b_features, build_typewell_prior_features
+from .features import (
+    build_baseline_b_features,
+    build_last_known_slope_features,
+    build_typewell_prior_features,
+)
 from .io import (
     INFERENCE_COLUMNS,
     prediction_ids,
@@ -118,6 +122,7 @@ def load_mapping_rows(
     stage_started: float,
     context: str,
     use_typewell_tvt_prior: bool = False,
+    use_last_known_slope: bool = False,
 ) -> LoadedRows:
     """Load complete wells after quarantine checks and build inference-only features."""
     assert_no_public_sample_overlap(mapping["well_id"], context=context)
@@ -139,10 +144,14 @@ def load_mapping_rows(
                 f"mapping={row.prediction_rows}"
             )
         inference_frame = frame.loc[:, list(INFERENCE_COLUMNS)]
+        if use_typewell_tvt_prior and use_last_known_slope:
+            raise ValueError("typewell prior and last-known slope are mutually exclusive")
         if use_typewell_tvt_prior:
             typewell_source = root / f"{row.well_id}__typewell.csv"
             typewell = pd.read_csv(typewell_source, usecols=["TVT"])
             features = build_typewell_prior_features(inference_frame, typewell)
+        elif use_last_known_slope:
+            features = build_last_known_slope_features(inference_frame)
         else:
             features = build_baseline_b_features(inference_frame)
         truth = frame.loc[mask, "TVT"].to_numpy(dtype=np.float64)

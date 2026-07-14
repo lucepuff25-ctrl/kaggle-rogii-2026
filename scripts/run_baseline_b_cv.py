@@ -37,7 +37,11 @@ from rogii.baseline_b_runtime import (
     mapping_summary,
     peak_rss_mib,
 )
-from rogii.features import BASELINE_B_FEATURE_COLUMNS, TYPEWELL_PRIOR_FEATURE_COLUMNS
+from rogii.features import (
+    BASELINE_B_FEATURE_COLUMNS,
+    LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+    TYPEWELL_PRIOR_FEATURE_COLUMNS,
+)
 from rogii.io import INFERENCE_COLUMNS, load_fold_mapping
 from rogii.metric import mean_squared_error, root_mean_squared_error
 from rogii.quarantine import (
@@ -113,6 +117,12 @@ def _validate_config(config: dict) -> None:
     )
     if not isinstance(config.get("use_typewell_tvt_prior", False), bool):
         raise ValueError("use_typewell_tvt_prior must be boolean")
+    if not isinstance(config.get("use_last_known_slope", False), bool):
+        raise ValueError("use_last_known_slope must be boolean")
+    if config.get("use_typewell_tvt_prior", False) and config.get(
+        "use_last_known_slope", False
+    ):
+        raise ValueError("single-variable features are mutually exclusive")
     _limits(config)
 
 
@@ -243,6 +253,7 @@ def _run_fold(config: dict, fold: int, output_prefix: Path) -> dict:
         stage_started=fold_started,
         context=f"Baseline B fold {fold} training load",
         use_typewell_tvt_prior=config.get("use_typewell_tvt_prior", False),
+        use_last_known_slope=config.get("use_last_known_slope", False),
     )
     training_prepare_seconds = time.perf_counter() - training_prepare_started
     training_summary = mapping_summary(training_mapping)
@@ -274,6 +285,7 @@ def _run_fold(config: dict, fold: int, output_prefix: Path) -> dict:
         stage_started=fold_started,
         context=f"Baseline B fold {fold} validation load",
         use_typewell_tvt_prior=config.get("use_typewell_tvt_prior", False),
+        use_last_known_slope=config.get("use_last_known_slope", False),
     )
     validation_prepare_seconds = time.perf_counter() - validation_prepare_started
     validation_summary = mapping_summary(validation_mapping)
@@ -476,9 +488,13 @@ def _run_parent(config: dict, config_path: Path) -> dict:
         "used_source_fields": list(INFERENCE_COLUMNS)
         + (["typewell.TVT"] if config.get("use_typewell_tvt_prior", False) else []),
         "feature_columns": list(
-            TYPEWELL_PRIOR_FEATURE_COLUMNS
-            if config.get("use_typewell_tvt_prior", False)
-            else BASELINE_B_FEATURE_COLUMNS
+            LAST_KNOWN_SLOPE_FEATURE_COLUMNS
+            if config.get("use_last_known_slope", False)
+            else (
+                TYPEWELL_PRIOR_FEATURE_COLUMNS
+                if config.get("use_typewell_tvt_prior", False)
+                else BASELINE_B_FEATURE_COLUMNS
+            )
         ),
         "excluded_fields": list(EXCLUDED_FIELDS),
         "parameters": config["parameters"],

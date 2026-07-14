@@ -12,7 +12,11 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from .features import BASELINE_B_FEATURE_COLUMNS, TYPEWELL_PRIOR_FEATURE_COLUMNS
+from .features import (
+    BASELINE_B_FEATURE_COLUMNS,
+    LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
+    TYPEWELL_PRIOR_FEATURE_COLUMNS,
+)
 from .io import FOLD_COLUMNS, sha256_file
 from .quarantine import QUARANTINE_POLICY_VERSION, assert_no_public_sample_overlap
 
@@ -126,6 +130,7 @@ def _validate_features(features: pd.DataFrame) -> None:
         raise TypeError("features must be a pandas DataFrame")
     if tuple(features.columns) not in (
         BASELINE_B_FEATURE_COLUMNS,
+        LAST_KNOWN_SLOPE_FEATURE_COLUMNS,
         TYPEWELL_PRIOR_FEATURE_COLUMNS,
     ):
         raise ValueError("Baseline B feature columns or order mismatch")
