@@ -6,7 +6,7 @@
   "private_notebook": "dongxinming/rogii-fast-7-091-rebuild",
   "script_version_id": 335303571,
   "kaggle_submission_ref": 54709570,
-  "kaggle_status": "PENDING",
+  "kaggle_status": "COMPLETE",
   "method": "PF/ANCC geosteering + geology features + LGBM/CatBoost + Ridge stack + smoothing",
   "cv_rmse": 10.4197,
   "cv_mse_derived_from_rounded_rmse": 108.57014809000002,
@@ -32,5 +32,8 @@
     "private_notebook": true,
     "push": false
   },
-  "decision": "PENDING official hidden-test result"
+  "decision": "PASS as new competitive baseline; FAIL gold threshold",
+  "public_score": 7.761,
+  "score_improvement_vs_previous_best": 5.7700000000000005,
+  "hidden_rerun_complete": true
 }
