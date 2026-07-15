@@ -1,0 +1,23 @@
+{
+  "experiment": "selector_cv_diagnostic_v1",
+  "status": "RUNNING",
+  "private_notebook": "dongxinming/rogii-selector-cv-diagnostic",
+  "notebook_version": 1,
+  "source": [
+    "yusuketogashi/rogii-another-approach",
+    "pilkwang/rogii-dual-track-prefix-calibrated-geosteering"
+  ],
+  "boundary": "freeze PF/Beam/learned candidates; diagnose selector and confidence gates only",
+  "cv_wells": 250,
+  "cv_seed": 20260713,
+  "selector_pf_seeds": 24,
+  "heel_calibration": false,
+  "model_package_correction": false,
+  "acceptance": {
+    "oracle_mse_max": 92.285,
+    "selector_rmse_max": 10.2,
+    "folds_improved_min": 4,
+    "nan_inf": 0
+  },
+  "kaggle_submission_created": false
+}
