@@ -1,0 +1,36 @@
+{
+  "experiment": "fast_competitive_pf_geosteering_rebuild_v1",
+  "date_utc": "2026-07-15",
+  "source_notebook": "AmgedAlfaqih/7-091-public",
+  "source_url": "https://www.kaggle.com/code/AmgedAlfaqih/7-091-public",
+  "private_notebook": "dongxinming/rogii-fast-7-091-rebuild",
+  "script_version_id": 335303571,
+  "kaggle_submission_ref": 54709570,
+  "kaggle_status": "PENDING",
+  "method": "PF/ANCC geosteering + geology features + LGBM/CatBoost + Ridge stack + smoothing",
+  "cv_rmse": 10.4197,
+  "cv_mse_derived_from_rounded_rmse": 108.57014809000002,
+  "fold_rmse": [
+    9.4973,
+    10.8118,
+    9.3836,
+    11.4277,
+    10.822
+  ],
+  "visible_run": {
+    "rows": 14151,
+    "nan": 0,
+    "inf": 0,
+    "id_unique": true,
+    "submission_sha256": "fdf4a8175b6ec6a70c9b78fd6916ac3c317e43f7e9c08bbca87cd02314801ca9"
+  },
+  "tests": "96 passed",
+  "policy": {
+    "hidden_labels": false,
+    "manual_labels": false,
+    "internet": false,
+    "private_notebook": true,
+    "push": false
+  },
+  "decision": "PENDING official hidden-test result"
+}
