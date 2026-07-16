@@ -1,0 +1,50 @@
+{
+  "stage": "ROGII Stage 2",
+  "date": "2026-07-16",
+  "status": "complete",
+  "base_head_before_closeout": "2c89a6c7138782c08fc799bdd97fa27e9038e626",
+  "promoted_solution": "PF/ANCC geosteering plus Beam Search plus learned GBM/CatBoost track plus Ridge stack plus robust projection",
+  "cv": {
+    "mse_derived_from_rounded_rmse": 108.57014809000002,
+    "rmse": 10.4197,
+    "fold_rmse": [9.4973, 10.8118, 9.3836, 11.4277, 10.822]
+  },
+  "kaggle": {
+    "submission_ref": 54709570,
+    "status": "COMPLETE",
+    "public_score": 7.761,
+    "previous_best": 13.531,
+    "improvement": 5.77,
+    "notebook": "dongxinming/rogii-fast-7-091-rebuild"
+  },
+  "selector_diagnostic": {
+    "notebook": "dongxinming/rogii-selector-cv-diagnostic",
+    "status": "CANCEL_ACKNOWLEDGED",
+    "sample_wells_completed": 250,
+    "selector_rmse": 9.274922201935324,
+    "selector_mse": 86.02418185195282,
+    "full_stack_wells_completed_before_cancel": 175,
+    "competition_submission_created": false,
+    "decision": "directional evidence only; not accepted"
+  },
+  "foundation": {
+    "tests": "96 passed",
+    "validation_status": "ok",
+    "raw_train_wells": 773,
+    "effective_wells": 770,
+    "quarantined_wells": 3,
+    "typewell_groups": 749,
+    "folds": 5,
+    "prediction_rows": 3769838,
+    "fold_mapping_sha256": "e524dfa3dd43f1a4d2105971f16a5b1b0e0135bdc4d20ea476388310146df9e1"
+  },
+  "integrity": {
+    "git_diff_check": "passed",
+    "git_fsck": "passed",
+    "raw_data_git_status": "clean",
+    "raw_manifest_sha256": "eba81c54740319d53b443c8c09d77219b4c586d4b352475607be2f37bcbcba8b",
+    "gpu_compute_processes": 0,
+    "secrets_recorded": false
+  },
+  "decision": "Stage 2 closed; Stage 3 may begin only under docs/phase_3_plan.md"
+}

@@ -1,6 +1,6 @@
 {
   "experiment": "selector_cv_diagnostic_v1",
-  "status": "RUNNING",
+  "status": "CANCEL_ACKNOWLEDGED",
   "private_notebook": "dongxinming/rogii-selector-cv-diagnostic",
   "notebook_version": 1,
   "source": [
@@ -8,16 +8,16 @@
     "pilkwang/rogii-dual-track-prefix-calibrated-geosteering"
   ],
   "boundary": "freeze PF/Beam/learned candidates; diagnose selector and confidence gates only",
-  "cv_wells": 250,
+  "cv_wells_completed": 250,
   "cv_seed": 20260713,
   "selector_pf_seeds": 24,
+  "selector_rmse": 9.274922201935324,
+  "selector_mse": 86.02418185195282,
+  "fold_rmse_on_available_sample": [9.505101390560402, 7.626150473583571, 8.13433063507074, 11.124374466550286, 9.542529320889935],
+  "full_stack_ablation_wells_completed": 175,
+  "cancel_reason": "Kaggle runtime limit during the optional full-stack ablation; no code exception observed",
   "heel_calibration": false,
   "model_package_correction": false,
-  "acceptance": {
-    "oracle_mse_max": 92.285,
-    "selector_rmse_max": 10.2,
-    "folds_improved_min": 4,
-    "nan_inf": 0
-  },
-  "kaggle_submission_created": false
+  "kaggle_submission_created": false,
+  "decision": "Directional evidence only. Not accepted because the full diagnostic did not complete and strict OOF learned-candidate provenance remains to be proven."
 }
